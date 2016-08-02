@@ -1,0 +1,7 @@
+source(some R script)
+prepare
+make graphs
+make analysis 
+...
+
+next script
