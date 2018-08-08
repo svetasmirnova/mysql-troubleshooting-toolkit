@@ -430,6 +430,8 @@ preprocess_data()
 		$MYSQL_COMMAND $MYSQL_DB -e "select * into outfile '$i.disk' FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' from iostat where device='$i' order by ts, id"
 		mv "$datadir/$MYSQL_DB/$i.disk" "$TMPDIR"
 	done
+	$MYSQL_COMMAND $MYSQL_DB -e "select * into outfile 'all_disks' FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' from iostat order by ts, id"
+	mv "$datadir/$MYSQL_DB/all_disks" "$TMPDIR"
 }
 
 # creates per-disk graphs
@@ -438,6 +440,12 @@ create_per_disk_graphs()
 	for i in `ls $TMPDIR/*.disk`; do
 		./iostat_disk.R `basename $i` "$TMPDIR" "$DESTINATION"
 	done
+}
+
+# creates per-metric graphs for all disks
+create_per_metric_graphs()
+{
+	./iostat_metrics.R all_disks "$TMPDIR" "$DESTINATION"
 }
 
 # executes commands
@@ -463,7 +471,7 @@ execute_graph()
 {
 	echo "Creating graphs..."
 	create_per_disk_graphs
-	# per-metric graphs
+	create_per_metric_graphs
 }
 
 initialize
